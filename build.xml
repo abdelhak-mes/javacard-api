@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ #%L
+ Java Card API
+ %%
+ Copyright (C) 2020 National Cybersecurity Agency of France (ANSSI)
+ %%
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ #L%
+-->
+
+<project name="rommask" default="build" basedir=".">
+
+    <property file="build.properties"/>
+
+    <target name="build" depends="createDirectory,prepare-api,build-exp,build-jca"/>
+
+
+    <target name="clean">
+        <echo message="Deleting old built files..."/>
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${build.dir}"/>
+        </delete>
+    </target>
+
+    <target name="createDirectory">
+      <mkdir dir="${build.dir}"/>
+    </target>
+
+    <target name="prepare-api">
+
+      <javac fork="true" destdir="${build.dir}"
+             includeantruntime="false" srcdir="${javacard.dir}"
+             source="1.7"
+             target="1.7">
+      </javac>
+    </target>
+
+    <target name="doc" depends="createDirectory">
+      <mkdir dir="${GPdoc.dir}"/>
+      <javadoc sourcepath="${javacard.dir}" destdir="${GPdoc.dir}"
+               packagenames="org.globalplatform" access="protected"
+               author="true"
+               version="true"
+               use="true">
+      </javadoc>
+      <mkdir dir="${JCdoc.dir}"/>
+      <javadoc sourcepath="${javacard.dir}" destdir="${JCdoc.dir}" 
+               packagenames="fr.gouv.ssi.*,javacard.*,javacardx.*"
+               access="protected"
+               author="true"
+               version="true"
+               use="true" >
+      </javadoc>
+    </target>
+    
+    <target name="build-exp" depends="prepare-api">
+
+        <!-- Java Card classpath -->
+        <path id="jc-classpath">
+            <fileset dir="${jcsdk.lib}">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="java.lang"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x00:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="java.io"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x00:0x02"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="java.rmi"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x00:0x03"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacard.framework"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x01:0x01"/>
+            <arg value="1.4"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacard.framework.service"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x01:0x01:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacard.security"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x01:0x01:0x01"/>
+            <arg value="1.6"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.crypto"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x01"/>
+            <arg value="1.6"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.biometry"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x02"/>
+            <arg value="1.2"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.external"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x03"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.biometry1toN"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x04"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.security"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x05"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.framework.util"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.framework.math"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x02"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.framework.tlv"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x03"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.framework.string"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x04"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.apdu"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x09"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="javacardx.apdu.util"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x09:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="fr.gouv.ssi.starter"/>
+            <arg value="0x01:0x23:0x45:0x56:0x78:0x9A:0xBC:0xDE"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="org.globalplatform"/>
+            <arg value="0xA0:0x00:0x00:0x01:0x51:0x00"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-mask"/>
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="EXP"/>
+            <arg value="fr.gouv.ssi.nativeimpl"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x60:0x00:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+    </target>
+
+    <target name="build-jca">
+
+      <!-- Java Card classpath -->
+        <path id="jc-classpath">
+            <fileset dir="${jcsdk.lib}">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+
+      <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="java.lang"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x00:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="java.io"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x00:0x02"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="java.rmi"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x00:0x03"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacard.framework"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x01:0x01"/>
+            <arg value="1.4"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacard.framework.service"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x01:0x01:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacard.security"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x01:0x01:0x01"/>
+            <arg value="1.6"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.crypto"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x01"/>
+            <arg value="1.6"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.biometry"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x02"/>
+            <arg value="1.2"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.external"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x03"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.biometry1toN"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x04"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.security"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x05"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.framework.util"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.framework.math"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x02"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.framework.tlv"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x03"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.framework.string"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x04"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.apdu"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x09"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="javacardx.apdu.util"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x62:0x02:0x02:0x08:0x09:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="fr.gouv.ssi.starter"/>
+            <arg value="0x01:0x23:0x45:0x56:0x78:0x9A:0xBC:0xDE"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="org.globalplatform"/>
+            <arg value="0xA0:0x00:0x00:0x01:0x51:0x00"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+        <java classname="com.sun.javacard.converter.Main" fork="true" dir="${build.dir}">
+            <arg value="-mask"/>
+            <arg value="-i"/>
+            <arg value="-exportpath"/>
+            <arg value="."/>
+            <arg value="-out"/>
+            <arg value="JCA"/>
+            <arg value="fr.gouv.ssi.nativeimpl"/>
+            <arg value="0xA0:0x00:0x00:0x00:0x60:0x00:0x01"/>
+            <arg value="1.0"/>
+            <classpath refid="jc-classpath"/>
+        </java>
+
+    </target>
+</project>
